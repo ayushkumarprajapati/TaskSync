@@ -1,0 +1,30 @@
+{
+  "name": "tasksync-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:init": "node scripts/init-db.js",
+    "db:check": "node scripts/check-db.js",
+    "db:indexes": "node scripts/add-task-filter-indexes.js",
+    "explain:filters": "node scripts/explain-task-filters.js",
+    "test": "node --test tests/auth.test.js tests/authRateLimits.test.js tests/sessionRevocation.test.js",
+    "test:mysql": "node scripts/test-auth-mysql.js",
+    "test:tasks": "node scripts/check-tasks-mysql.js",
+    "test:realtime": "node scripts/check-realtime-mysql.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.5",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}

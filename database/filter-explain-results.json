@@ -1,0 +1,2349 @@
+{
+  "measuredAt": "2026-10-25T20:12:20.899Z",
+  "mysql_version": "8.0.46",
+  "live": {
+    "task_count": 0
+  },
+  "liveIndexes": [
+    {
+      "Table": "tasks",
+      "Non_unique": 0,
+      "Key_name": "PRIMARY",
+      "Seq_in_index": 1,
+      "Column_name": "id",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_assigned_to",
+      "Seq_in_index": 1,
+      "Column_name": "assigned_to",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_created_by",
+      "Seq_in_index": 1,
+      "Column_name": "created_by",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    }
+  ],
+  "livePlans": [
+    {
+      "name": "No filters",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.0241..0.0241 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0238..0.0238 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0234..0.0234 rows=0 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=0.35 rows=1) (actual time=0.0162..0.0162 rows=0 loops=1)\n                -> Table scan on t  (cost=0.35 rows=1) (actual time=0.0159..0.0159 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Status only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.0231..0.0231 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0228..0.0228 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0224..0.0224 rows=0 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.`status` = 'done'))  (cost=0.35 rows=1) (actual time=0.0153..0.0153 rows=0 loops=1)\n                -> Table scan on t  (cost=0.35 rows=1) (actual time=0.015..0.015 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Priority only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.0211..0.0211 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0208..0.0208 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0203..0.0203 rows=0 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.priority = 'high'))  (cost=0.35 rows=1) (actual time=0.0137..0.0137 rows=0 loops=1)\n                -> Table scan on t  (cost=0.35 rows=1) (actual time=0.0134..0.0134 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.021..0.021 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0207..0.0207 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0201..0.0201 rows=0 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=0.35 rows=1) (actual time=0.0141..0.0141 rows=0 loops=1)\n                -> Table scan on t  (cost=0.35 rows=1) (actual time=0.0136..0.0136 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Assigned to me",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.023..0.023 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0228..0.0228 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0222..0.0222 rows=0 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=0.35 rows=1) (actual time=0.0157..0.0157 rows=0 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=0.35 rows=1) (actual time=0.0152..0.0152 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Me + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.0216..0.0216 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.0213..0.0213 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0208..0.0208 rows=0 loops=1)\n            -> Filter: (((t.created_by = 1) or true) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=0.35 rows=1) (actual time=0.0139..0.0139 rows=0 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=0.35 rows=1) (actual time=0.0133..0.0133 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Other assignee + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        2
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": null,
+          "partitions": null,
+          "type": null,
+          "possible_keys": null,
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": null,
+          "filtered": null,
+          "Extra": "no matching row in const table"
+        }
+      ],
+      "analysis": "-> Zero rows (no matching row in const table)  (cost=0..0 rows=0) (actual time=200e-6..200e-6 rows=0 loops=1)\n",
+      "returned": 0
+    },
+    {
+      "name": "Sparse user + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        2,
+        2,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1.05 rows=1) (actual time=0.0201..0.0201 rows=0 loops=1)\n    -> Nested loop inner join  (cost=0.7 rows=1) (actual time=0.02..0.02 rows=0 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=0.35 rows=1) (actual time=0.0194..0.0194 rows=0 loops=1)\n            -> Filter: (((t.created_by = 2) or (t.assigned_to = 2)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=0.35 rows=1) (actual time=0.0137..0.0137 rows=0 loops=1)\n                -> Table scan on t  (cost=0.35 rows=1) (actual time=0.0132..0.0132 rows=0 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.35 rows=1) (never executed)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.35 rows=1) (never executed)\n",
+      "returned": 0
+    }
+  ],
+  "fixture": {
+    "seed": 20261026,
+    "users": 500,
+    "tasks": 30000,
+    "created_by_1": "5947",
+    "assigned_to_1": "4431",
+    "unassigned": "6029",
+    "todo": "21066",
+    "in_progress": "5949",
+    "done": "2985",
+    "low": "17943",
+    "medium": "9006",
+    "high": "3051"
+  },
+  "candidates": [
+    {
+      "name": "idx_tasks_creator_status_priority",
+      "columns": "created_by, status, priority"
+    },
+    {
+      "name": "idx_tasks_assignee_status_priority",
+      "columns": "assigned_to, status, priority"
+    },
+    {
+      "name": "idx_tasks_status_priority",
+      "columns": "status, priority"
+    }
+  ],
+  "selectedIndexes": [
+    {
+      "name": "idx_tasks_assignee_status_priority",
+      "columns": "assigned_to, status, priority"
+    },
+    {
+      "name": "idx_tasks_status_priority",
+      "columns": "status, priority"
+    }
+  ],
+  "before": [
+    {
+      "name": "No filters",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 100,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=9526 rows=9493) (actual time=50.9..88.2 rows=9513 loops=1)\n    -> Nested loop inner join  (cost=6203 rows=9493) (actual time=50.9..73.4 rows=9513 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2881 rows=9493) (actual time=50.8..58.7 rows=9513 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=2881 rows=9493) (actual time=0.135..38.3 rows=9513 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2881 rows=9493) (actual time=0.133..36.5 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0719..4.06 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0387..3.1 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00126..0.0013 rows=1 loops=9513)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00128..0.00132 rows=0.878 loops=9513)\n",
+      "returned": 9513
+    },
+    {
+      "name": "Status only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 33.333335876464844,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=5728 rows=9493) (actual time=35.7..39.7 rows=959 loops=1)\n    -> Nested loop inner join  (cost=3988 rows=9493) (actual time=35.7..38 rows=959 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2248 rows=9493) (actual time=35.7..36.4 rows=959 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.`status` = 'done'))  (cost=2248 rows=9493) (actual time=0.299..34.7 rows=959 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2248 rows=9493) (actual time=0.155..31 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0774..4.59 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.047..3.49 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00137..0.00141 rows=1 loops=959)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00152..0.00155 rows=0.874 loops=959)\n",
+      "returned": 959
+    },
+    {
+      "name": "Priority only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 33.333335876464844,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=5728 rows=9493) (actual time=34.1..38.9 rows=974 loops=1)\n    -> Nested loop inner join  (cost=3988 rows=9493) (actual time=34.1..36.8 rows=974 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2248 rows=9493) (actual time=34.1..35 rows=974 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.priority = 'high'))  (cost=2248 rows=9493) (actual time=0.209..33.1 rows=974 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2248 rows=9493) (actual time=0.123..29.7 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0617..4.37 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0402..3.3 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00157..0.00162 rows=1 loops=974)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00181..0.00186 rows=0.886 loops=974)\n",
+      "returned": 974
+    },
+    {
+      "name": "Status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 11.111111640930176,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=4463 rows=9493) (actual time=37.3..37.7 rows=104 loops=1)\n    -> Nested loop inner join  (cost=3250 rows=9493) (actual time=37.3..37.5 rows=104 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2037 rows=9493) (actual time=37.3..37.4 rows=104 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=2037 rows=9493) (actual time=0.786..37 rows=104 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2037 rows=9493) (actual time=0.159..33.3 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0808..5.24 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.046..3.84 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00133..0.00136 rows=1 loops=104)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00107..0.00109 rows=0.904 loops=104)\n",
+      "returned": 104
+    },
+    {
+      "name": "Assigned to me",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 4431,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=2750 rows=4431) (actual time=39..75.5 rows=4431 loops=1)\n    -> Nested loop inner join  (cost=2307 rows=4431) (actual time=39..69.8 rows=4431 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=756 rows=4431) (actual time=38.9..48.3 rows=4431 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=756 rows=4431) (actual time=0.0368..26.3 rows=4431 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=756 rows=4431) (actual time=0.0351..24.3 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00439..0.00445 rows=1 loops=4431)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=79e-6 rows=1) (actual time=805e-6..876e-6 rows=1 loops=4431)\n",
+      "returned": 4431
+    },
+    {
+      "name": "Me + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 4431,
+          "filtered": 11.111111640930176,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=1372 rows=4431) (actual time=16.3..16.5 rows=51 loops=1)\n    -> Nested loop inner join  (cost=928 rows=4431) (actual time=16.3..16.5 rows=51 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=362 rows=4431) (actual time=16.3..16.4 rows=51 loops=1)\n            -> Filter: (((t.created_by = 1) or true) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=362 rows=4431) (actual time=0.199..16.2 rows=51 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=362 rows=4431) (actual time=0.042..14.4 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00221..0.00225 rows=1 loops=51)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=711e-6 rows=1) (actual time=249e-6..302e-6 rows=1 loops=51)\n",
+      "returned": 51
+    },
+    {
+      "name": "Other assignee + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        2
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "const",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_assigned_to,idx_tasks_created_by",
+          "key_len": "5,4",
+          "ref": null,
+          "rows": 11,
+          "filtered": 10.735671043395996,
+          "Extra": "Using intersect(idx_tasks_assigned_to,idx_tasks_created_by); Using where"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=6.22 rows=11.4) (actual time=7.17..7.17 rows=0 loops=1)\n    -> Sort: t.created_at DESC, t.id DESC  (cost=4.83 rows=11.4) (actual time=7.17..7.17 rows=0 loops=1)\n        -> Filter: ((t.created_by = '1') and (t.assigned_to = 2) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=4.83 rows=11.4) (actual time=7.16..7.16 rows=0 loops=1)\n            -> Intersect rows sorted by row ID  (cost=4.83 rows=11.4) (actual time=0.474..7.12 rows=12 loops=1)\n                -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 2)  (cost=0.265 rows=57) (actual time=0.0724..0.141 rows=57 loops=1)\n                -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=1.7 rows=5947) (actual time=0.0305..6.16 rows=5894 loops=1)\n    -> Single-row index lookup on assignee using PRIMARY (id=2)  (cost=0.286 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Sparse user + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        2,
+        2,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 90,
+          "filtered": 11.111111640930176,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=60 rows=90) (actual time=0.757..0.776 rows=2 loops=1)\n    -> Nested loop inner join  (cost=48.5 rows=90) (actual time=0.746..0.757 rows=2 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=37 rows=90) (actual time=0.732..0.734 rows=2 loops=1)\n            -> Filter: (((t.created_by = 2) or (t.assigned_to = 2)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=37 rows=90) (actual time=0.211..0.696 rows=2 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=37 rows=90) (actual time=0.105..0.623 rows=90 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 2)  (cost=3.57 rows=33) (actual time=0.0652..0.106 rows=33 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 2)  (cost=5.98 rows=57) (actual time=0.0277..0.124 rows=57 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.26 rows=1) (actual time=0.0098..0.00985 rows=1 loops=2)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.26 rows=1) (actual time=0.00885..0.009 rows=1 loops=2)\n",
+      "returned": 2
+    }
+  ],
+  "trial": [
+    {
+      "name": "No filters",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 100,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=9526 rows=9493) (actual time=39.8..72.6 rows=9513 loops=1)\n    -> Nested loop inner join  (cost=6203 rows=9493) (actual time=39.7..59.4 rows=9513 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2881 rows=9493) (actual time=39.7..46.3 rows=9513 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=2881 rows=9493) (actual time=0.146..27.5 rows=9513 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2881 rows=9493) (actual time=0.144..25.8 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0624..3.97 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0675..3.1 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00113..0.00117 rows=1 loops=9513)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00117..0.0012 rows=0.878 loops=9513)\n",
+      "returned": 9513
+    },
+    {
+      "name": "Status only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "1",
+          "ref": "const",
+          "rows": 2985,
+          "filtered": 0.3992016017436981,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=917 rows=2985) (actual time=9.38..13.1 rows=959 loops=1)\n    -> Nested loop inner join  (cost=615 rows=2985) (actual time=9.38..11.6 rows=959 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=314 rows=2985) (actual time=9.37..10.1 rows=959 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=314 rows=2985) (actual time=0.0903..8.55 rows=959 loops=1)\n                -> Index lookup on t using idx_tasks_status_priority (status='done')  (cost=314 rows=2985) (actual time=0.0371..8 rows=2985 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.258 rows=1) (actual time=0.00127..0.00132 rows=1 loops=959)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.258 rows=1) (actual time=0.00127..0.00131 rows=0.874 loops=959)\n",
+      "returned": 959
+    },
+    {
+      "name": "Priority only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9493,
+          "filtered": 33.333335876464844,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=5728 rows=9493) (actual time=38.7..43.6 rows=974 loops=1)\n    -> Nested loop inner join  (cost=3988 rows=9493) (actual time=38.7..41.6 rows=974 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2248 rows=9493) (actual time=38.7..39.5 rows=974 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.priority = 'high'))  (cost=2248 rows=9493) (actual time=0.198..37.6 rows=974 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2248 rows=9493) (actual time=0.113..33.3 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0629..5.09 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0354..3.96 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00175..0.0018 rows=1 loops=974)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00169..0.00174 rows=0.886 loops=974)\n",
+      "returned": 974
+    },
+    {
+      "name": "Status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "2",
+          "ref": "const,const",
+          "rows": 328,
+          "filtered": 0.3992016017436981,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=148 rows=328) (actual time=1.4..1.83 rows=104 loops=1)\n    -> Nested loop inner join  (cost=115 rows=328) (actual time=1.4..1.65 rows=104 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=82.1 rows=328) (actual time=1.38..1.46 rows=104 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=82.1 rows=328) (actual time=0.0422..1.08 rows=104 loops=1)\n                -> Index lookup on t using idx_tasks_status_priority (status='done', priority='high')  (cost=82.1 rows=328) (actual time=0.0283..1.01 rows=328 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.326 rows=1) (actual time=0.00154..0.00159 rows=1 loops=104)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.326 rows=1) (actual time=0.00139..0.00143 rows=0.904 loops=104)\n",
+      "returned": 104
+    },
+    {
+      "name": "Assigned to me",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 4431,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=2750 rows=4431) (actual time=21.7..34.4 rows=4431 loops=1)\n    -> Nested loop inner join  (cost=2307 rows=4431) (actual time=21.7..33 rows=4431 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=756 rows=4431) (actual time=21.6..24.6 rows=4431 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=756 rows=4431) (actual time=0.0289..14 rows=4431 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=756 rows=4431) (actual time=0.0272..13 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00166..0.00169 rows=1 loops=4431)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=79e-6 rows=1) (actual time=103e-6..137e-6 rows=1 loops=4431)\n",
+      "returned": 4431
+    },
+    {
+      "name": "Me + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "range",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_assignee_status_priority",
+          "key_len": "7",
+          "ref": null,
+          "rows": 51,
+          "filtered": 100,
+          "Extra": "Using index condition; Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=46.4 rows=51) (actual time=0.476..0.649 rows=51 loops=1)\n    -> Nested loop inner join  (cost=41.1 rows=51) (actual time=0.472..0.622 rows=51 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=23.2 rows=51) (actual time=0.461..0.497 rows=51 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=23.2 rows=51) (actual time=0.0476..0.368 rows=51 loops=1)\n                -> Index range scan on t using idx_tasks_assignee_status_priority over (assigned_to = 1 AND status = 'done' AND priority = 'high'), with index condition: ((t.assigned_to = 1) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=23.2 rows=51) (actual time=0.0462..0.349 rows=51 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.252 rows=1) (actual time=0.00209..0.00214 rows=1 loops=51)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=0.00686 rows=1) (actual time=225e-6..280e-6 rows=1 loops=51)\n",
+      "returned": 51
+    },
+    {
+      "name": "Other assignee + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        2
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "const",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_assignee_status_priority",
+          "key_len": "7",
+          "ref": "const,const,const",
+          "rows": 1,
+          "filtered": 19.97313117980957,
+          "Extra": "Using where"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=0.42 rows=1) (actual time=0.0302..0.0302 rows=0 loops=1)\n    -> Sort: t.created_at DESC, t.id DESC  (cost=0.27 rows=1) (actual time=0.0296..0.0296 rows=0 loops=1)\n        -> Filter: (t.created_by = '1')  (cost=0.27 rows=1) (actual time=0.0233..0.0233 rows=0 loops=1)\n            -> Index lookup on t using idx_tasks_assignee_status_priority (assigned_to=2, status='done', priority='high')  (cost=0.27 rows=1) (actual time=0.0192..0.022 rows=1 loops=1)\n    -> Single-row index lookup on assignee using PRIMARY (id=2)  (cost=0.751 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Sparse user + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        2,
+        2,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_creator_status_priority,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 90,
+          "filtered": 1.1015952825546265,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=63.4 rows=90) (actual time=0.453..0.459 rows=2 loops=1)\n    -> Nested loop inner join  (cost=54.2 rows=90) (actual time=0.448..0.452 rows=2 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=45 rows=90) (actual time=0.44..0.441 rows=2 loops=1)\n            -> Filter: (((t.created_by = 2) or (t.assigned_to = 2)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=45 rows=90) (actual time=0.176..0.418 rows=2 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=45 rows=90) (actual time=0.12..0.383 rows=90 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 2)  (cost=3.57 rows=33) (actual time=0.0689..0.0913 rows=33 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 2)  (cost=5.98 rows=57) (actual time=0.033..0.0702 rows=57 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.351 rows=1) (actual time=0.00465..0.0047 rows=1 loops=2)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.351 rows=1) (actual time=0.003..0.0031 rows=1 loops=2)\n",
+      "returned": 2
+    }
+  ],
+  "after": [
+    {
+      "name": "No filters",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9450,
+          "filtered": 100,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=9489 rows=9450) (actual time=54.1..91 rows=9513 loops=1)\n    -> Nested loop inner join  (cost=6182 rows=9450) (actual time=54.1..76.3 rows=9513 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2874 rows=9450) (actual time=54..61.5 rows=9513 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=2874 rows=9450) (actual time=0.112..38.5 rows=9513 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2874 rows=9450) (actual time=0.109..36.1 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0569..5.61 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0352..4.35 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.0013..0.00134 rows=1 loops=9513)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.0013..0.00133 rows=0.878 loops=9513)\n",
+      "returned": 9513
+    },
+    {
+      "name": "Status only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "1",
+          "ref": "const",
+          "rows": 2985,
+          "filtered": 0.3992016017436981,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=917 rows=2985) (actual time=8.55..11.9 rows=959 loops=1)\n    -> Nested loop inner join  (cost=615 rows=2985) (actual time=8.55..10.5 rows=959 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=314 rows=2985) (actual time=8.53..9.12 rows=959 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=314 rows=2985) (actual time=0.0617..7.93 rows=959 loops=1)\n                -> Index lookup on t using idx_tasks_status_priority (status='done')  (cost=314 rows=2985) (actual time=0.0272..7.36 rows=2985 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.258 rows=1) (actual time=0.00122..0.00125 rows=1 loops=959)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.258 rows=1) (actual time=0.00124..0.00127 rows=0.874 loops=959)\n",
+      "returned": 959
+    },
+    {
+      "name": "Priority only",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 9450,
+          "filtered": 33.333335876464844,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=5709 rows=9450) (actual time=32.7..36.6 rows=974 loops=1)\n    -> Nested loop inner join  (cost=3977 rows=9450) (actual time=32.7..35.2 rows=974 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=2244 rows=9450) (actual time=32.7..33.6 rows=974 loops=1)\n            -> Filter: (((t.created_by = 1) or (t.assigned_to = 1)) and (t.priority = 'high'))  (cost=2244 rows=9450) (actual time=0.199..31.6 rows=974 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=2244 rows=9450) (actual time=0.108..28.3 rows=9513 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 1)  (cost=596 rows=5947) (actual time=0.0662..4.24 rows=5947 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 1)  (cost=445 rows=4431) (actual time=0.0294..3.16 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00139..0.00143 rows=1 loops=974)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.25 rows=1) (actual time=0.00124..0.00128 rows=0.886 loops=974)\n",
+      "returned": 974
+    },
+    {
+      "name": "Status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "2",
+          "ref": "const,const",
+          "rows": 328,
+          "filtered": 0.3992016017436981,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=148 rows=328) (actual time=1.03..1.37 rows=104 loops=1)\n    -> Nested loop inner join  (cost=115 rows=328) (actual time=1.03..1.23 rows=104 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=82.1 rows=328) (actual time=1.02..1.07 rows=104 loops=1)\n            -> Filter: ((t.created_by = 1) or (t.assigned_to = 1))  (cost=82.1 rows=328) (actual time=0.0388..0.938 rows=104 loops=1)\n                -> Index lookup on t using idx_tasks_status_priority (status='done', priority='high')  (cost=82.1 rows=328) (actual time=0.0262..0.873 rows=328 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.326 rows=1) (actual time=0.00128..0.00132 rows=1 loops=104)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.326 rows=1) (actual time=0.00114..0.00116 rows=0.904 loops=104)\n",
+      "returned": 104
+    },
+    {
+      "name": "Assigned to me",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 4431,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=2750 rows=4431) (actual time=21.3..38.6 rows=4431 loops=1)\n    -> Nested loop inner join  (cost=2307 rows=4431) (actual time=21.3..36.6 rows=4431 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=756 rows=4431) (actual time=21.2..25.1 rows=4431 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=756 rows=4431) (actual time=0.0272..12.5 rows=4431 loops=1)\n                -> Index lookup on t using idx_tasks_assigned_to (assigned_to=1)  (cost=756 rows=4431) (actual time=0.0253..11.6 rows=4431 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.25 rows=1) (actual time=0.00231..0.00235 rows=1 loops=4431)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=79e-6 rows=1) (actual time=139e-6..181e-6 rows=1 loops=4431)\n",
+      "returned": 4431
+    },
+    {
+      "name": "Me + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        1
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "range",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_assignee_status_priority",
+          "key_len": "7",
+          "ref": null,
+          "rows": 51,
+          "filtered": 100,
+          "Extra": "Using index condition; Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=46.4 rows=51) (actual time=0.318..0.49 rows=51 loops=1)\n    -> Nested loop inner join  (cost=41.1 rows=51) (actual time=0.313..0.463 rows=51 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=23.2 rows=51) (actual time=0.304..0.341 rows=51 loops=1)\n            -> Filter: ((t.created_by = 1) or true)  (cost=23.2 rows=51) (actual time=0.0345..0.238 rows=51 loops=1)\n                -> Index range scan on t using idx_tasks_assignee_status_priority over (assigned_to = 1 AND status = 'done' AND priority = 'high'), with index condition: ((t.assigned_to = 1) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=23.2 rows=51) (actual time=0.0335..0.225 rows=51 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.252 rows=1) (actual time=0.00207..0.00211 rows=1 loops=51)\n    -> Single-row index lookup on assignee using PRIMARY (id=1)  (cost=0.00686 rows=1) (actual time=224e-6..275e-6 rows=1 loops=51)\n",
+      "returned": 51
+    },
+    {
+      "name": "Other assignee + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? AND t.assigned_to = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        1,
+        1,
+        "done",
+        "high",
+        2
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "const",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_assignee_status_priority",
+          "key_len": "7",
+          "ref": "const,const,const",
+          "rows": 1,
+          "filtered": 20.954158782958984,
+          "Extra": "Using where"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=0.423 rows=1) (actual time=0.0307..0.0307 rows=0 loops=1)\n    -> Sort: t.created_at DESC, t.id DESC  (cost=0.271 rows=1) (actual time=0.03..0.03 rows=0 loops=1)\n        -> Filter: (t.created_by = '1')  (cost=0.271 rows=1) (actual time=0.0239..0.0239 rows=0 loops=1)\n            -> Index lookup on t using idx_tasks_assignee_status_priority (assigned_to=2, status='done', priority='high')  (cost=0.271 rows=1) (actual time=0.0193..0.0222 rows=1 loops=1)\n    -> Single-row index lookup on assignee using PRIMARY (id=2)  (cost=0.727 rows=1) (never executed)\n",
+      "returned": 0
+    },
+    {
+      "name": "Sparse user + status + priority",
+      "sql": "SELECT t.id, t.title, t.description, t.status, t.priority,\n  t.assigned_to, t.created_by, DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,\n  t.created_at, t.updated_at, creator.name AS creator_name, assignee.name AS assignee_name\n  FROM tasks t JOIN users creator ON creator.id = t.created_by\n  LEFT JOIN users assignee ON assignee.id = t.assigned_to WHERE (t.created_by = ? OR t.assigned_to = ?) AND t.status = ? AND t.priority = ? ORDER BY t.created_at DESC, t.id DESC",
+      "values": [
+        2,
+        2,
+        "done",
+        "high"
+      ],
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "index_merge",
+          "possible_keys": "idx_tasks_created_by,idx_tasks_assigned_to,idx_tasks_assignee_status_priority,idx_tasks_status_priority",
+          "key": "idx_tasks_created_by,idx_tasks_assigned_to",
+          "key_len": "4,5",
+          "ref": null,
+          "rows": 90,
+          "filtered": 1.155702829360962,
+          "Extra": "Using union(idx_tasks_created_by,idx_tasks_assigned_to); Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ],
+      "analysis": "-> Nested loop left join  (cost=63.5 rows=90) (actual time=0.429..0.435 rows=2 loops=1)\n    -> Nested loop inner join  (cost=54.2 rows=90) (actual time=0.425..0.429 rows=2 loops=1)\n        -> Sort: t.created_at DESC, t.id DESC  (cost=45 rows=90) (actual time=0.417..0.418 rows=2 loops=1)\n            -> Filter: (((t.created_by = 2) or (t.assigned_to = 2)) and (t.`status` = 'done') and (t.priority = 'high'))  (cost=45 rows=90) (actual time=0.177..0.398 rows=2 loops=1)\n                -> Deduplicate rows sorted by row ID  (cost=45 rows=90) (actual time=0.129..0.37 rows=90 loops=1)\n                    -> Index range scan on t using idx_tasks_created_by over (created_by = 2)  (cost=3.57 rows=33) (actual time=0.0858..0.106 rows=33 loops=1)\n                    -> Index range scan on t using idx_tasks_assigned_to over (assigned_to = 2)  (cost=5.98 rows=57) (actual time=0.0307..0.0659 rows=57 loops=1)\n        -> Single-row index lookup on creator using PRIMARY (id=t.created_by)  (cost=0.346 rows=1) (actual time=0.00475..0.0048 rows=1 loops=2)\n    -> Single-row index lookup on assignee using PRIMARY (id=t.assigned_to)  (cost=0.346 rows=1) (actual time=0.00265..0.00265 rows=1 loops=2)\n",
+      "returned": 2
+    }
+  ],
+  "liveAfterIndexes": [
+    {
+      "Table": "tasks",
+      "Non_unique": 0,
+      "Key_name": "PRIMARY",
+      "Seq_in_index": 1,
+      "Column_name": "id",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_assigned_to",
+      "Seq_in_index": 1,
+      "Column_name": "assigned_to",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_created_by",
+      "Seq_in_index": 1,
+      "Column_name": "created_by",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_status_priority",
+      "Seq_in_index": 1,
+      "Column_name": "status",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_status_priority",
+      "Seq_in_index": 2,
+      "Column_name": "priority",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_assignee_status_priority",
+      "Seq_in_index": 1,
+      "Column_name": "assigned_to",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_assignee_status_priority",
+      "Seq_in_index": 2,
+      "Column_name": "status",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    },
+    {
+      "Table": "tasks",
+      "Non_unique": 1,
+      "Key_name": "idx_tasks_assignee_status_priority",
+      "Seq_in_index": 3,
+      "Column_name": "priority",
+      "Collation": "A",
+      "Cardinality": 0,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": "",
+      "Visible": "YES",
+      "Expression": null
+    }
+  ],
+  "liveAfterPlans": [
+    {
+      "name": "No filters",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_assignee_status_priority",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Status only",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "1",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Priority only",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ALL",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_assignee_status_priority",
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Status + priority",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "2",
+          "ref": "const,const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Assigned to me",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Me + status + priority",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_assigned_to",
+          "key_len": "5",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    },
+    {
+      "name": "Other assignee + status + priority",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": null,
+          "partitions": null,
+          "type": null,
+          "possible_keys": null,
+          "key": null,
+          "key_len": null,
+          "ref": null,
+          "rows": null,
+          "filtered": null,
+          "Extra": "no matching row in const table"
+        }
+      ]
+    },
+    {
+      "name": "Sparse user + status + priority",
+      "plan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "t",
+          "partitions": null,
+          "type": "ref",
+          "possible_keys": "idx_tasks_assigned_to,idx_tasks_created_by,idx_tasks_status_priority,idx_tasks_assignee_status_priority",
+          "key": "idx_tasks_status_priority",
+          "key_len": "2",
+          "ref": "const,const",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": "Using where; Using filesort"
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "creator",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.created_by",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        },
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "assignee",
+          "partitions": null,
+          "type": "eq_ref",
+          "possible_keys": "PRIMARY",
+          "key": "PRIMARY",
+          "key_len": "4",
+          "ref": "tasksync.t.assigned_to",
+          "rows": 1,
+          "filtered": 100,
+          "Extra": null
+        }
+      ]
+    }
+  ],
+  "liveAfter": {
+    "task_count": 0
+  }
+}
